@@ -5,6 +5,17 @@ const searchBtn = document.getElementById('searchBtn');
 const resultsSection = document.getElementById('resultsSection');
 const errorMessage = document.getElementById('errorMessage');
 const exampleBtns = document.querySelectorAll('.example-btn');
+const providerSelect = document.getElementById('providerSelect');
+const modelSelect = document.getElementById('modelSelect');
+
+// State
+let availableModels = {};
+let currentProvider = '';
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadModels();
+});
 
 // Event Listeners
 searchForm.addEventListener('submit', handleSearch);
@@ -17,11 +28,103 @@ exampleBtns.forEach(btn => {
     });
 });
 
+providerSelect.addEventListener('change', (e) => {
+    currentProvider = e.target.value;
+    updateModelOptions();
+});
+
+// Load available models
+async function loadModels() {
+    try {
+        const response = await fetch('/api/models');
+        const data = await response.json();
+
+        availableModels = data.models;
+        const defaults = data.defaults;
+
+        // Populate provider dropdown
+        providerSelect.innerHTML = '';
+        Object.keys(availableModels).forEach(provider => {
+            const option = document.createElement('option');
+            option.value = provider;
+            option.textContent = provider.charAt(0).toUpperCase() + provider.slice(1);
+            if (provider === defaults.provider) {
+                option.selected = true;
+            }
+            providerSelect.appendChild(option);
+        });
+
+        // Set current provider and update models
+        currentProvider = providerSelect.value || defaults.provider;
+        updateModelOptions(defaults.model);
+    } catch (error) {
+        console.error('Failed to load models:', error);
+        providerSelect.innerHTML = '<option value="openai">OpenAI</option>';
+        modelSelect.innerHTML = '<option value="gpt-4o-mini">GPT-4o Mini</option>';
+    }
+}
+
+// Update model options based on selected provider
+function updateModelOptions(defaultModel = null) {
+    const models = availableModels[currentProvider] || [];
+
+    modelSelect.innerHTML = '';
+
+    if (models.length === 0) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No models available';
+        modelSelect.appendChild(option);
+        return;
+    }
+
+    // Group models by category if using OpenRouter
+    if (currentProvider === 'openrouter') {
+        const categories = {};
+        models.forEach(model => {
+            if (!categories[model.category]) {
+                categories[model.category] = [];
+            }
+            categories[model.category].push(model);
+        });
+
+        Object.keys(categories).forEach(category => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category.charAt(0).toUpperCase() + category.slice(1);
+
+            categories[category].forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.id;
+                option.textContent = model.name;
+                if (defaultModel && model.id === defaultModel) {
+                    option.selected = true;
+                }
+                optgroup.appendChild(option);
+            });
+
+            modelSelect.appendChild(optgroup);
+        });
+    } else {
+        // Simple list for OpenAI
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = model.name;
+            if (defaultModel && model.id === defaultModel) {
+                option.selected = true;
+            }
+            modelSelect.appendChild(option);
+        });
+    }
+}
+
 // Handle search submission
 async function handleSearch(e) {
     e.preventDefault();
 
     const topic = topicInput.value.trim();
+    const provider = providerSelect.value;
+    const model = modelSelect.value;
 
     if (!topic) {
         showError('Please enter a topic to analyze');
@@ -39,7 +142,7 @@ async function handleSearch(e) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ topic }),
+            body: JSON.stringify({ topic, provider, model }),
         });
 
         const data = await response.json();
@@ -76,9 +179,16 @@ function setLoadingState(isLoading) {
 
 // Display results
 function displayResults(data) {
+    const modelInfo = data.provider && data.model
+        ? `<p style="font-size: 0.875rem; color: var(--text-light); margin-top: 0.5rem;">
+            Powered by ${data.provider.charAt(0).toUpperCase() + data.provider.slice(1)}: ${data.model}
+           </p>`
+        : '';
+
     const html = `
         <div class="results-header">
             <h2 class="results-title">Analysis Results for: ${data.topic}</h2>
+            ${modelInfo}
             <div class="scores-grid">
                 ${createScoreCard('Competition Score', data.competitionScore, 'Lower is better')}
                 ${createScoreCard('Trend Score', data.trendScore, 'Market interest', 'success')}

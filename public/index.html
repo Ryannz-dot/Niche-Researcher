@@ -60,6 +60,32 @@
                     </div>
                 </form>
 
+                <div class="model-selection">
+                    <div class="model-select-group">
+                        <label for="providerSelect">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                            Provider:
+                        </label>
+                        <select id="providerSelect" class="model-select">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                    <div class="model-select-group">
+                        <label for="modelSelect">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.4 4.4l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.4-4.4l4.2-4.2"/>
+                            </svg>
+                            Model:
+                        </label>
+                        <select id="modelSelect" class="model-select">
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="example-topics">
                     <span>Try:</span>
                     <button class="example-btn" data-topic="AI productivity tools">AI productivity tools</button>

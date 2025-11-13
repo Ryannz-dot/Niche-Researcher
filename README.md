@@ -34,7 +34,9 @@ Discover profitable web app and website ideas with instant AI-powered market ana
 Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (v14 or higher)
 - npm (comes with Node.js)
-- An OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- **At least one of the following API keys:**
+  - OpenAI API key ([Get one here](https://platform.openai.com/api-keys)) - For GPT-4, GPT-3.5 models
+  - OpenRouter API key ([Get one here](https://openrouter.ai/keys)) - For access to Claude, GPT-4, Gemini, Llama, and more
 
 ## 🚀 Quick Start
 
@@ -59,10 +61,32 @@ Create a `.env` file in the root directory:
 cp .env.example .env
 ```
 
-Edit the `.env` file and add your OpenAI API key:
+Edit the `.env` file and configure your AI provider:
 
+**Option A: Using OpenAI (GPT models)**
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
+AI_PROVIDER=openai
+DEFAULT_MODEL=gpt-4o-mini
+PORT=3000
+NODE_ENV=development
+```
+
+**Option B: Using OpenRouter (Claude, GPT, Gemini, etc.)**
+```env
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+AI_PROVIDER=openrouter
+DEFAULT_MODEL=anthropic/claude-3.5-sonnet
+PORT=3000
+NODE_ENV=development
+```
+
+**Option C: Using Both (Switch in UI)**
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+AI_PROVIDER=openai
+DEFAULT_MODEL=gpt-4o-mini
 PORT=3000
 NODE_ENV=development
 ```
@@ -88,12 +112,16 @@ http://localhost:3000
 
 ## 📖 Usage
 
-1. **Enter a Topic**: Type any niche or topic you want to explore
+1. **Select Your AI Provider & Model**: Choose from the dropdown menus
+   - **OpenAI**: GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-3.5 Turbo
+   - **OpenRouter**: Claude 3.5 Sonnet, Claude 3 Opus, GPT-4o, Gemini Pro, Llama 3.1, Mistral, and more
+
+2. **Enter a Topic**: Type any niche or topic you want to explore
    - Examples: "AI productivity tools", "fitness tracking", "recipe management"
 
-2. **Click Analyze**: The AI will analyze the market and generate insights
+3. **Click Analyze**: The AI will analyze the market and generate insights
 
-3. **Review Results**: Get instant access to:
+4. **Review Results**: Get instant access to:
    - Competition, trend, and opportunity scores
    - Market size and difficulty level
    - Detailed competition and trend analysis
@@ -111,6 +139,24 @@ http://localhost:3000
 
 ## 🎯 API Endpoints
 
+### GET `/api/models`
+
+Get available AI models and providers.
+
+**Response:**
+```json
+{
+  "models": {
+    "openai": [...],
+    "openrouter": [...]
+  },
+  "defaults": {
+    "provider": "openai",
+    "model": "gpt-4o-mini"
+  }
+}
+```
+
 ### POST `/api/analyze`
 
 Analyze a niche topic and generate app concepts.
@@ -118,9 +164,13 @@ Analyze a niche topic and generate app concepts.
 **Request Body:**
 ```json
 {
-  "topic": "AI productivity tools"
+  "topic": "AI productivity tools",
+  "provider": "openai",
+  "model": "gpt-4o-mini"
 }
 ```
+
+Note: `provider` and `model` are optional. If not specified, defaults from `.env` will be used.
 
 **Response:**
 ```json
@@ -155,7 +205,9 @@ Analyze a niche topic and generate app concepts.
   ],
   "recommendations": ["..."],
   "risks": ["..."],
-  "timestamp": "2024-01-01T00:00:00.000Z"
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "provider": "openai",
+  "model": "gpt-4o-mini"
 }
 ```
 
@@ -170,6 +222,17 @@ Check API health status.
   "timestamp": "2024-01-01T00:00:00.000Z"
 }
 ```
+
+## 🤖 Why Use OpenRouter?
+
+OpenRouter provides several advantages:
+
+1. **Access to Multiple Models**: Use Claude, GPT-4, Gemini, Llama, and more with a single API key
+2. **Cost Optimization**: Automatically route to the best model for your budget
+3. **No Vendor Lock-in**: Switch between models without changing your code
+4. **Built-in Rate Limiting**: Automatic cost controls and usage limits
+5. **Unified Billing**: One bill for all AI models
+6. **Latest Models**: Get access to new models as soon as they're released
 
 ## 🏗️ Project Structure
 
@@ -190,13 +253,30 @@ Niche-Researcher/
 
 ## 🎨 Customization
 
-### Changing the AI Model
+### Switching AI Providers
 
-Edit `services/nicheAnalyzer.js` and modify the model parameter:
+You can switch between providers in two ways:
 
-```javascript
-model: 'gpt-4o-mini', // Change to gpt-4, gpt-3.5-turbo, etc.
-```
+1. **Via UI**: Use the provider dropdown in the web interface
+2. **Via Environment**: Set `AI_PROVIDER` and `DEFAULT_MODEL` in `.env`
+
+### Available Models
+
+**OpenAI Models:**
+- `gpt-4o` - Most capable, best for complex analysis
+- `gpt-4o-mini` - Fast and affordable, recommended for most use cases
+- `gpt-4-turbo` - Fast GPT-4 variant
+- `gpt-3.5-turbo` - Fastest and cheapest option
+
+**OpenRouter Models:**
+- `anthropic/claude-3.5-sonnet` - Best overall, excellent reasoning
+- `anthropic/claude-3-opus` - Most capable Claude model
+- `anthropic/claude-3-haiku` - Fastest Claude model
+- `openai/gpt-4o` - GPT-4o via OpenRouter
+- `google/gemini-pro-1.5` - Google's Gemini Pro
+- `meta-llama/llama-3.1-70b-instruct` - Open source Llama
+- `mistralai/mistral-large` - Mistral's largest model
+- And many more!
 
 ### Adjusting Analysis Depth
 
@@ -217,26 +297,39 @@ Edit `public/styles.css` to customize the look and feel. The CSS uses CSS variab
 ## 🔒 Security Notes
 
 - Never commit your `.env` file with real API keys
-- Keep your OpenAI API key secure
+- Keep your API keys secure (both OpenAI and OpenRouter)
 - Consider implementing rate limiting for production use
 - Add authentication if deploying publicly
+- OpenRouter provides built-in rate limiting and cost controls
 
 ## 📝 Environment Variables
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `OPENAI_API_KEY` | Your OpenAI API key | Yes | - |
+| `OPENAI_API_KEY` | Your OpenAI API key | No* | - |
+| `OPENROUTER_API_KEY` | Your OpenRouter API key | No* | - |
+| `AI_PROVIDER` | Default AI provider (openai or openrouter) | No | openai |
+| `DEFAULT_MODEL` | Default model to use | No | gpt-4o-mini |
 | `PORT` | Server port | No | 3000 |
 | `NODE_ENV` | Environment mode | No | development |
+
+\* At least one API key (OPENAI_API_KEY or OPENROUTER_API_KEY) is required
 
 ## 🐛 Troubleshooting
 
 ### API Key Issues
 
-If you see "Invalid API key" errors:
+**For OpenAI:**
 1. Verify your API key in `.env`
 2. Ensure there are no extra spaces or quotes
 3. Check that your OpenAI account has credits
+4. Verify the key starts with `sk-`
+
+**For OpenRouter:**
+1. Get your API key from https://openrouter.ai/keys
+2. Ensure you have credits in your OpenRouter account
+3. Check the key format in `.env`
+4. OpenRouter keys start with `sk-or-`
 
 ### Port Already in Use
 
