@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Niche Finder - Discover Profitable Web App Ideas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+                    <path d="M20 10L25 15L20 20L15 15L20 10Z" fill="white" opacity="0.9"/>
+                    <path d="M20 20L25 25L20 30L15 25L20 20Z" fill="white" opacity="0.7"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span>AI Niche Finder</span>
+            </div>
+            <p class="tagline">Discover Profitable Web App Ideas Instantly</p>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-box">
+                <h1>What niche would you like to explore?</h1>
+                <p class="subtitle">Enter any topic and get instant AI-powered market analysis with app concepts</p>
+
+                <form id="searchForm" class="search-form">
+                    <div class="input-group">
+                        <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <input
+                            type="text"
+                            id="topicInput"
+                            placeholder="e.g., AI productivity tools, fitness tracking, recipe management..."
+                            required
+                        >
+                        <button type="submit" class="search-btn" id="searchBtn">
+                            <span class="btn-text">Analyze Niche</span>
+                            <span class="btn-loading" style="display: none;">
+                                <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+                                    <circle class="spinner-circle" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+                                </svg>
+                                Analyzing...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="example-topics">
+                    <span>Try:</span>
+                    <button class="example-btn" data-topic="AI productivity tools">AI productivity tools</button>
+                    <button class="example-btn" data-topic="pet care management">Pet care</button>
+                    <button class="example-btn" data-topic="freelancer tools">Freelancer tools</button>
+                    <button class="example-btn" data-topic="mental wellness apps">Mental wellness</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSection" class="results-section" style="display: none;">
+            <!-- Results will be dynamically inserted here -->
+        </section>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by AI • Built for Entrepreneurs & Developers</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
