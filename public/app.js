@@ -54,7 +54,26 @@ providerSelect.addEventListener('change', (e) => {
 // Load available models
 async function loadModels() {
     try {
-        const response = await fetch('/api/models');
+        // Get stored API keys to send with request
+        const { openaiKey, openrouterKey } = getStoredKeys();
+
+        // Use POST to send API keys, fallback to GET if no keys
+        let response;
+        if (openaiKey || openrouterKey) {
+            response = await fetch('/api/models', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    openaiKey,
+                    openrouterKey
+                })
+            });
+        } else {
+            response = await fetch('/api/models');
+        }
+
         const data = await response.json();
 
         availableModels = data.models;
@@ -62,6 +81,23 @@ async function loadModels() {
 
         // Populate provider dropdown
         providerSelect.innerHTML = '';
+
+        if (Object.keys(availableModels).length === 0) {
+            // No providers available
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No API keys configured';
+            providerSelect.appendChild(option);
+            providerSelect.disabled = true;
+
+            modelSelect.innerHTML = '<option value="">Configure API key in Settings</option>';
+            modelSelect.disabled = true;
+            return;
+        }
+
+        providerSelect.disabled = false;
+        modelSelect.disabled = false;
+
         Object.keys(availableModels).forEach(provider => {
             const option = document.createElement('option');
             option.value = provider;
@@ -77,8 +113,8 @@ async function loadModels() {
         updateModelOptions(defaults.model);
     } catch (error) {
         console.error('Failed to load models:', error);
-        providerSelect.innerHTML = '<option value="openai">OpenAI</option>';
-        modelSelect.innerHTML = '<option value="gpt-4o-mini">GPT-4o Mini</option>';
+        providerSelect.innerHTML = '<option value="">Error loading providers</option>';
+        modelSelect.innerHTML = '<option value="">Error loading models</option>';
     }
 }
 

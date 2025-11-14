@@ -48,14 +48,18 @@ class NicheAnalyzer {
     };
   }
 
-  getAvailableModels() {
+  getAvailableModels(options = {}) {
     const models = {};
 
-    if (this.openaiKey) {
+    // Check for OpenAI key (frontend or backend)
+    const hasOpenAI = options.openaiKey || this.openaiKey;
+    if (hasOpenAI) {
       models.openai = this.models.openai;
     }
 
-    if (this.openrouterKey) {
+    // Check for OpenRouter key (frontend or backend)
+    const hasOpenRouter = options.openrouterKey || this.openrouterKey;
+    if (hasOpenRouter) {
       models.openrouter = this.models.openrouter;
     }
 

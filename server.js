@@ -19,10 +19,39 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API endpoint to get available models
+// API endpoint to get available models (supports both GET and POST)
 app.get('/api/models', (req, res) => {
   try {
     const models = nicheAnalyzer.getAvailableModels();
+    const defaultProvider = process.env.AI_PROVIDER || 'openai';
+    const defaultModel = process.env.DEFAULT_MODEL || 'gpt-4o-mini';
+
+    res.json({
+      models,
+      defaults: {
+        provider: defaultProvider,
+        model: defaultModel
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    res.status(500).json({
+      error: 'Failed to fetch available models',
+      details: error.message
+    });
+  }
+});
+
+// POST endpoint for models with frontend API keys
+app.post('/api/models', (req, res) => {
+  try {
+    const { openaiKey, openrouterKey } = req.body;
+
+    const models = nicheAnalyzer.getAvailableModels({
+      openaiKey,
+      openrouterKey
+    });
+
     const defaultProvider = process.env.AI_PROVIDER || 'openai';
     const defaultModel = process.env.DEFAULT_MODEL || 'gpt-4o-mini';
 
