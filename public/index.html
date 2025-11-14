@@ -27,8 +27,103 @@
                 </svg>
                 <span>AI Niche Finder</span>
             </div>
+            <button class="settings-btn" id="settingsBtn" title="API Key Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6M5.6 5.6l4.2 4.2m4.4 4.4l4.2 4.2M1 12h6m6 0h6M5.6 18.4l4.2-4.2m4.4-4.4l4.2-4.2"/>
+                </svg>
+                Settings
+            </button>
             <p class="tagline">Discover Profitable Web App Ideas Instantly</p>
         </header>
+
+        <!-- API Settings Modal -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>API Key Settings</h2>
+                    <button class="close-btn" id="closeModal">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="api-key-notice">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <div>
+                            <strong>Temporary Storage</strong>
+                            <p>API keys are stored only in your browser session and will be cleared when you close this tab.</p>
+                        </div>
+                    </div>
+
+                    <div class="api-key-form">
+                        <div class="form-group">
+                            <label for="openaiKeyInput">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                OpenAI API Key
+                            </label>
+                            <div class="input-with-toggle">
+                                <input
+                                    type="password"
+                                    id="openaiKeyInput"
+                                    class="api-key-input"
+                                    placeholder="sk-..."
+                                />
+                                <button type="button" class="toggle-visibility" data-target="openaiKeyInput">
+                                    <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <small class="help-text">Get your key from <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="openrouterKeyInput">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                OpenRouter API Key
+                            </label>
+                            <div class="input-with-toggle">
+                                <input
+                                    type="password"
+                                    id="openrouterKeyInput"
+                                    class="api-key-input"
+                                    placeholder="sk-or-..."
+                                />
+                                <button type="button" class="toggle-visibility" data-target="openrouterKeyInput">
+                                    <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <small class="help-text">Get your key from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></small>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="key-status" id="keyStatus"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="clearKeysBtn">Clear Keys</button>
+                    <button class="btn-primary" id="saveKeysBtn">Save Keys</button>
+                </div>
+            </div>
+        </div>
 
         <!-- Search Section -->
         <section class="search-section">

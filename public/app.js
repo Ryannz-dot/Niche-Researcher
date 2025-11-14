@@ -8,13 +8,31 @@ const exampleBtns = document.querySelectorAll('.example-btn');
 const providerSelect = document.getElementById('providerSelect');
 const modelSelect = document.getElementById('modelSelect');
 
+// Modal Elements
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeModal = document.getElementById('closeModal');
+const openaiKeyInput = document.getElementById('openaiKeyInput');
+const openrouterKeyInput = document.getElementById('openrouterKeyInput');
+const saveKeysBtn = document.getElementById('saveKeysBtn');
+const clearKeysBtn = document.getElementById('clearKeysBtn');
+const keyStatus = document.getElementById('keyStatus');
+
 // State
 let availableModels = {};
 let currentProvider = '';
 
+// API Key Management
+const API_KEYS = {
+    openai: 'temp_openai_key',
+    openrouter: 'temp_openrouter_key'
+};
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadModels();
+    loadSavedKeys();
+    setupModalListeners();
 });
 
 // Event Listeners
@@ -118,6 +136,140 @@ function updateModelOptions(defaultModel = null) {
     }
 }
 
+// Modal Management
+function setupModalListeners() {
+    // Open modal
+    settingsBtn.addEventListener('click', () => {
+        settingsModal.style.display = 'flex';
+        loadSavedKeys();
+    });
+
+    // Close modal
+    closeModal.addEventListener('click', () => {
+        settingsModal.style.display = 'none';
+    });
+
+    // Close modal on outside click
+    settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+            settingsModal.style.display = 'none';
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && settingsModal.style.display === 'flex') {
+            settingsModal.style.display = 'none';
+        }
+    });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-visibility').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        });
+    });
+
+    // Save keys
+    saveKeysBtn.addEventListener('click', saveKeys);
+
+    // Clear keys
+    clearKeysBtn.addEventListener('click', clearKeys);
+}
+
+// Load saved keys from sessionStorage
+function loadSavedKeys() {
+    const openaiKey = sessionStorage.getItem(API_KEYS.openai);
+    const openrouterKey = sessionStorage.getItem(API_KEYS.openrouter);
+
+    if (openaiKey) {
+        openaiKeyInput.value = openaiKey;
+    }
+    if (openrouterKey) {
+        openrouterKeyInput.value = openrouterKey;
+    }
+
+    updateKeyStatus();
+}
+
+// Save keys to sessionStorage
+function saveKeys() {
+    const openaiKey = openaiKeyInput.value.trim();
+    const openrouterKey = openrouterKeyInput.value.trim();
+
+    if (!openaiKey && !openrouterKey) {
+        showKeyStatus('Please enter at least one API key', 'error');
+        return;
+    }
+
+    if (openaiKey) {
+        sessionStorage.setItem(API_KEYS.openai, openaiKey);
+    }
+    if (openrouterKey) {
+        sessionStorage.setItem(API_KEYS.openrouter, openrouterKey);
+    }
+
+    showKeyStatus('API keys saved successfully! (Session only)', 'success');
+    updateKeyStatus();
+
+    // Reload models with new keys
+    setTimeout(() => {
+        settingsModal.style.display = 'none';
+        loadModels();
+    }, 1500);
+}
+
+// Clear keys from sessionStorage
+function clearKeys() {
+    sessionStorage.removeItem(API_KEYS.openai);
+    sessionStorage.removeItem(API_KEYS.openrouter);
+    openaiKeyInput.value = '';
+    openrouterKeyInput.value = '';
+    showKeyStatus('All API keys cleared', 'success');
+    updateKeyStatus();
+}
+
+// Get stored API keys
+function getStoredKeys() {
+    return {
+        openaiKey: sessionStorage.getItem(API_KEYS.openai) || null,
+        openrouterKey: sessionStorage.getItem(API_KEYS.openrouter) || null
+    };
+}
+
+// Update key status display
+function updateKeyStatus() {
+    const { openaiKey, openrouterKey } = getStoredKeys();
+
+    if (!openaiKey && !openrouterKey) {
+        keyStatus.style.display = 'none';
+        return;
+    }
+
+    let statusText = 'Configured: ';
+    const keys = [];
+    if (openaiKey) keys.push('OpenAI');
+    if (openrouterKey) keys.push('OpenRouter');
+    statusText += keys.join(', ');
+
+    keyStatus.textContent = statusText;
+    keyStatus.className = 'key-status success';
+    keyStatus.style.display = 'flex';
+}
+
+// Show key status message
+function showKeyStatus(message, type) {
+    keyStatus.textContent = message;
+    keyStatus.className = `key-status ${type}`;
+    keyStatus.style.display = 'flex';
+}
+
 // Handle search submission
 async function handleSearch(e) {
     e.preventDefault();
@@ -137,12 +289,30 @@ async function handleSearch(e) {
     resultsSection.style.display = 'none';
 
     try {
+        // Get stored API keys
+        const { openaiKey, openrouterKey } = getStoredKeys();
+
+        // Prepare request body
+        const requestBody = {
+            topic,
+            provider,
+            model
+        };
+
+        // Add API keys if available (frontend keys override backend)
+        if (openaiKey) {
+            requestBody.openaiKey = openaiKey;
+        }
+        if (openrouterKey) {
+            requestBody.openrouterKey = openrouterKey;
+        }
+
         const response = await fetch('/api/analyze', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ topic, provider, model }),
+            body: JSON.stringify(requestBody),
         });
 
         const data = await response.json();

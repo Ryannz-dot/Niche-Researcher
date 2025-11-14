@@ -45,7 +45,7 @@ app.get('/api/models', (req, res) => {
 // API endpoint for niche analysis
 app.post('/api/analyze', async (req, res) => {
   try {
-    const { topic, provider, model } = req.body;
+    const { topic, provider, model, openaiKey, openrouterKey } = req.body;
 
     if (!topic || topic.trim().length === 0) {
       return res.status(400).json({
@@ -55,10 +55,14 @@ app.post('/api/analyze', async (req, res) => {
 
     console.log(`Analyzing niche: ${topic}`);
     console.log(`Provider: ${provider || 'default'}, Model: ${model || 'default'}`);
+    console.log(`Using ${openaiKey ? 'frontend' : 'backend'} OpenAI key: ${openaiKey ? 'Yes' : 'No'}`);
+    console.log(`Using ${openrouterKey ? 'frontend' : 'backend'} OpenRouter key: ${openrouterKey ? 'Yes' : 'No'}`);
 
     const options = {};
     if (provider) options.provider = provider;
     if (model) options.model = model;
+    if (openaiKey) options.openaiKey = openaiKey;
+    if (openrouterKey) options.openrouterKey = openrouterKey;
 
     const analysis = await nicheAnalyzer.analyzeNiche(topic, options);
 

@@ -71,10 +71,18 @@ class NicheAnalyzer {
       throw new Error(`Invalid provider: ${provider}. Must be 'openai' or 'openrouter'`);
     }
 
-    // Check API key
-    const apiKey = this.providers[provider].key;
+    // Get API key (prioritize frontend-provided keys, then fall back to env keys)
+    let apiKey;
+    if (provider === 'openai' && options.openaiKey) {
+      apiKey = options.openaiKey;
+    } else if (provider === 'openrouter' && options.openrouterKey) {
+      apiKey = options.openrouterKey;
+    } else {
+      apiKey = this.providers[provider].key;
+    }
+
     if (!apiKey) {
-      throw new Error(`API key not configured for ${provider}. Please set ${provider.toUpperCase()}_API_KEY in your .env file`);
+      throw new Error(`API key not configured for ${provider}. Please configure your API key in Settings or set ${provider.toUpperCase()}_API_KEY in your .env file`);
     }
 
     const apiUrl = this.providers[provider].url;
